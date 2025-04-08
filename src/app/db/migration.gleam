@@ -1,4 +1,5 @@
-import app/internal.{exit, print_blue, print_red}
+import app/internal/colors.{print_blue, print_red}
+import app/internal/ffi.{exit}
 import cake/adapter/postgres
 import pog.{type Connection}
 
@@ -7,22 +8,22 @@ pub type MigrationOption {
   Down
 }
 
-pub fn run(option: MigrationOption, conn: Connection) {
+pub fn run(option: MigrationOption, conn: Connection) -> Nil {
   case option {
     Up -> migrate_up(conn)
     Down -> migrate_down(conn)
   }
 }
 
-fn migrate_up(conn: Connection) {
+fn migrate_up(conn: Connection) -> Nil {
   execute("Create table users", create_users_table, conn)
 }
 
-fn migrate_down(conn: Connection) {
+fn migrate_down(conn: Connection) -> Nil {
   execute("Drop table users", drop_users_table, conn)
 }
 
-fn execute(name: String, query: fn() -> String, conn: Connection) {
+fn execute(name: String, query: fn() -> String, conn: Connection) -> Nil {
   let result =
     query()
     |> postgres.execute_raw_sql(conn)
@@ -36,7 +37,7 @@ fn execute(name: String, query: fn() -> String, conn: Connection) {
   }
 }
 
-fn create_users_table() {
+fn create_users_table() -> String {
   "
     create table if not exists users (
       id serial primary key,
@@ -47,6 +48,6 @@ fn create_users_table() {
   "
 }
 
-fn drop_users_table() {
+fn drop_users_table() -> String {
   "drop table if exists users;"
 }

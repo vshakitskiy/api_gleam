@@ -1,4 +1,4 @@
-import app/internal.{print_blue, print_green, print_red}
+import app/internal/colors.{print_blue, print_green, print_red}
 import gleam/erlang/process
 import gleam/http
 import gleam/int
@@ -7,7 +7,11 @@ import mist
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 
-pub fn start_server(handler: fn(Request) -> Response, port: Int, secret: String) {
+pub fn start_server(
+  handler: fn(Request) -> Response,
+  port: Int,
+  secret: String,
+) -> Nil {
   print_blue(["Starting server..."])
 
   let start_result =
@@ -22,6 +26,7 @@ pub fn start_server(handler: fn(Request) -> Response, port: Int, secret: String)
         mist.ip_address_to_string(ip),
         ":",
         int.to_string(port),
+        "\n",
       ])
     })
     |> mist.start_http()

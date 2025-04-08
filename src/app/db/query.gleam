@@ -8,7 +8,10 @@ import gleam/list
 import gleam/result
 import pog.{type Connection}
 
-pub fn get_user_by_email(email: String, conn: Connection) {
+pub fn get_user_by_email(
+  email: String,
+  conn: Connection,
+) -> Result(model.User, db.PGError) {
   let pg_result =
     s.new()
     |> s.selects([
@@ -33,7 +36,10 @@ pub fn get_user_by_email(email: String, conn: Connection) {
   Ok(pg_user)
 }
 
-pub fn insert_user(user: model.User, conn: Connection) {
+pub fn insert_user(
+  user: model.User,
+  conn: Connection,
+) -> Result(model.User, db.PGError) {
   let cols = ["username", "email", "password_hash"]
   let pg_result =
     [

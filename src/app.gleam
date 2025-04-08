@@ -1,8 +1,9 @@
 import app/db
 import app/db/migration as mg
-import app/internal.{print_red}
+import app/internal/colors.{print_red}
 import app/router
 import app/server
+import app/web
 import argv
 import dot_env as dot
 import dot_env/env
@@ -44,11 +45,16 @@ fn run_migration(opt: mg.MigrationOption) {
 
 fn run_server(mode: String) {
   init(mode)
+  use conn <- db.with_connection
 
   let secret =
     wisp.random_string(64)
     |> env.get_string_or("SECRET_KEY", _)
   let port = env.get_int_or("PORT", 4040)
 
-  server.start_server(router.handle_request, port, secret)
+  server.start_server(
+    fn(req) { router.handle_request(web.Ctx(conn:, req:, path: [])) },
+    port,
+    secret,
+  )
 }

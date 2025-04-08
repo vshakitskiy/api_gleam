@@ -10,7 +10,7 @@ pub type PGError {
   Public(msg: String, code: Int)
 }
 
-pub fn with_connection(callback: fn(Connection) -> a) {
+pub fn with_connection(callback: fn(Connection) -> a) -> a {
   postgres.with_connection(
     host: env.get_string_or("DB_HOST", "127.0.0.1"),
     port: env.get_int_or("DB_PORT", 5432),
@@ -21,7 +21,7 @@ pub fn with_connection(callback: fn(Connection) -> a) {
   )
 }
 
-pub fn test_connection(conn: Connection) {
+pub fn test_connection(conn: Connection) -> Result(Connection, Nil) {
   case postgres.execute_raw_sql("select 1", conn) {
     Ok(_) -> Ok(conn)
     Error(_) -> Error(Nil)
@@ -31,7 +31,7 @@ pub fn test_connection(conn: Connection) {
 pub fn unwrap_query_result(
   pg_result: Result(a, QueryError),
   next: fn(Result(a, PGError)) -> b,
-) {
+) -> b {
   case pg_result {
     Ok(pg_data) -> next(Ok(pg_data))
     Error(pg_error) -> {
