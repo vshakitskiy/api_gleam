@@ -7,7 +7,6 @@ packages = [
   { name = "cake", version = "2.1.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "cake", source = "hex", outer_checksum = "D0EA8E576457F35C355CB40A934D4F20140C6DD5E24946150B36E909B5B33F54" },
   { name = "cake_pog", version = "1.1.1", build_tools = ["gleam"], requirements = ["cake", "gleam_stdlib", "pog"], otp_app = "cake_pog", source = "hex", outer_checksum = "5BF83A94B7F58E31B535C5198CB1751643107EC6F090E23AFA86EA9D8769795C" },
   { name = "colours", version = "0.3.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "colours", source = "hex", outer_checksum = "217E1F62013276D9D29192F97F136B5BA830129F2FD5B5D51DCC183B64223F3B" },
-  { name = "decode", version = "1.1.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "decode", source = "hex", outer_checksum = "9FFAD3F60600C6777072C3836B9FD965961D7C76C5D6007918AE0F82C1B21BE3" },
   { name = "directories", version = "1.1.0", build_tools = ["gleam"], requirements = ["envoy", "gleam_stdlib", "platform", "simplifile"], otp_app = "directories", source = "hex", outer_checksum = "BDA521A4EB9EE3A7894F0DC863797878E91FF5C7826F7084B2E731E208BDB076" },
   { name = "dot_env", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "simplifile"], otp_app = "dot_env", source = "hex", outer_checksum = "F2B4815F1B5AF8F20A6EADBB393E715C4C35203EBD5BE8200F766EA83A0B18DE" },
   { name = "envoy", version = "1.0.2", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "envoy", source = "hex", outer_checksum = "95FD059345AA982E89A0B6E2A3BF1CF43E17A7048DCD85B5B65D3B9E4E39D359" },
@@ -42,7 +41,6 @@ argv = { version = ">= 1.0.2 and < 2.0.0" }
 cake = { version = ">= 2.1.1 and < 3.0.0" }
 cake_pog = { version = ">= 1.1.1 and < 2.0.0" }
 colours = { version = ">= 0.3.0 and < 1.0.0" }
-decode = { version = ">= 1.1.0 and < 2.0.0" }
 dot_env = { version = ">= 1.2.0 and < 2.0.0" }
 gleam_erlang = { version = ">= 0.34.0 and < 1.0.0" }
 gleam_http = { version = ">= 4.0.0 and < 5.0.0" }

@@ -13,19 +13,25 @@ version = "1.0.0"
 # https://gleam.run/writing-gleam/gleam-toml/.
 
 [dependencies]
-gleam_stdlib = ">= 0.44.0 and < 2.0.0"
-wisp = ">= 1.6.0 and < 2.0.0"
-dot_env = ">= 1.2.0 and < 2.0.0"
-argv = ">= 1.0.2 and < 2.0.0"
-colours = ">= 0.3.0 and < 1.0.0"
-mist = ">= 4.0.7 and < 5.0.0"
-gleam_json = ">= 2.3.0 and < 3.0.0"
+# gleam
 gleam_erlang = ">= 0.34.0 and < 1.0.0"
+gleam_stdlib = ">= 0.44.0 and < 2.0.0"
+# env
+dot_env = ">= 1.2.0 and < 2.0.0"
+# args
+argv = ">= 1.0.2 and < 2.0.0"
+# http
 gleam_http = ">= 4.0.0 and < 5.0.0"
+gleam_json = ">= 2.3.0 and < 3.0.0"
+mist = ">= 4.0.7 and < 5.0.0"
+wisp = ">= 1.6.0 and < 2.0.0"
+# db
 cake = ">= 2.1.1 and < 3.0.0"
 cake_pog = ">= 1.1.1 and < 2.0.0"
 pog = ">= 3.2.0 and < 4.0.0"
-decode = ">= 1.1.0 and < 2.0.0"
+
+# TODO: Remove colour
+colours = ">= 0.3.0 and < 1.0.0"
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
