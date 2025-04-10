@@ -1,4 +1,5 @@
-# Api Gleam
+# Gleam API
+!["preview"](./preview.png)
 
 ## Prerequisites
 
