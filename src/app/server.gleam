@@ -18,6 +18,7 @@ pub fn start_server(
     wisp_mist.handler(handler, secret)
     |> mist.new()
     |> mist.port(port)
+    |> mist.bind("0.0.0.0")
     |> mist.after_start(fn(port, schema, ip) {
       print_green([
         "Listening on ",

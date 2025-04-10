@@ -5,17 +5,24 @@
 
 - Docker
 - Gleam
-- Make
+- make
 
-## Getting started
+## Running application
 
-1. Setup the database
+1. Run docker compose
+```sh
+docker-compose up # --build
+```
+
+## Development
+
+1. Setup the databas
 ```sh
 make db_up
 ```
 
 2. Run migration
-```make
+```sh
 make migrate_up
 ```
 

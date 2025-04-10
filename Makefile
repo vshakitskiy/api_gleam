@@ -1,8 +1,8 @@
 db_up:
-	docker compose up
+	docker compose up db
 
 db_down:
-	docker compose down
+	docker compose down db
 
 migrate_up:
 	gleam run migrate up

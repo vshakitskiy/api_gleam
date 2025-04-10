@@ -1,15 +1,31 @@
+version: "3.9"
+name: gleam_api
+
 services:
+  app:
+    container_name: api_app
+    env_file:
+      - .env
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
+
   db:
-    container_name: postgres
+    container_name: api_db
+    env_file:
+      - .env
     image: postgres:16
     restart: always
     volumes:
-      - db:/data/postgres
+      - db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=db
-      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=${DB_NAME}
+      - PGPORT=${DB_PORT}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - "5555:5432"
+      - "${DB_PORT}:${DB_PORT}"
 
 volumes:
   db:
