@@ -1,24 +1,68 @@
-# basic_http
+# Api Gleam
 
-[![Package Version](https://img.shields.io/hexpm/v/basic_http)](https://hex.pm/packages/basic_http)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/basic_http/)
+## Prerequisites
 
+- Docker
+- Gleam
+- Make
+
+## Getting started
+
+1. Setup the database
 ```sh
-gleam add basic_http@1
+make db_up
 ```
-```gleam
-import basic_http
 
-pub fn main() {
-  // TODO: An example of the project in use
+2. Run migration
+```make
+make migrate_up
+```
+
+3. Run the project
+```sh
+make run
+```
+
+## Api
+
+### Ping server
+
+#### Request
+`GET /api/v1/ping`
+
+### Register a user
+
+#### Request
+`POST /api/v1/auth/register`
+
+#### Request body
+```json
+{
+  "username": "string",
+  "password": "string",
+  "email": "string"
 }
 ```
 
-Further documentation can be found at <https://hexdocs.pm/basic_http>.
+### Login a user
 
-## Development
+#### Request
+`POST /api/v1/auth/login`
 
-```sh
-gleam run   # Run the project
-gleam test  # Run the tests
+#### Request body
+```json
+{
+  "email": "string",
+  "password": "string"
+}
 ```
+
+### Get current user
+
+#### Request
+`GET /api/v1/auth/status`
+
+### Logout a user
+
+#### Request
+`POST /api/v1/auth/logout`

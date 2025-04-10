@@ -1,12 +1,14 @@
 import app/db
 import app/db/migration as mg
-import app/internal/colors.{print_red}
+import app/internal/colors.{print_red, print_yellow}
+import app/internal/ffi
 import app/router
 import app/server
 import app/web
 import argv
 import dot_env as dot
 import dot_env/env
+import gleam/io
 import wisp
 
 pub fn main() {
@@ -44,16 +46,36 @@ fn run_migration(opt: mg.MigrationOption) {
 }
 
 fn run_server(mode: String) {
+  io.println("")
+
   init(mode)
-  use conn <- db.with_connection
+  use conn <- db.with_connection()
+  let conn = case db.test_connection(conn) {
+    Ok(conn) -> {
+      print_yellow(["Connected to db\n"])
+      conn
+    }
+    Error(Nil) -> {
+      print_red(["Unable to connect db"])
+      ffi.exit(1)
+    }
+  }
 
   let secret =
     wisp.random_string(64)
     |> env.get_string_or("SECRET_KEY", _)
   let port = env.get_int_or("PORT", 4040)
 
+  let jwt_key = case env.get_string("JWT_SECRET") {
+    Ok(key) -> key
+    Error(_) -> {
+      colors.print_red(["JWT_SECRET is not provided"])
+      ffi.exit(1)
+    }
+  }
+
   server.start_server(
-    fn(req) { router.handle_request(web.Ctx(conn:, req:, path: [])) },
+    fn(req) { router.handle_request(web.init_ctx(conn, req, jwt_key)) },
     port,
     secret,
   )

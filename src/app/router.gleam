@@ -2,7 +2,7 @@ import app/model
 import app/router/auth.{handle_auth}
 import app/web.{type Ctx, Ctx}
 import gleam/http
-import wisp.{type Request, type Response}
+import wisp.{type Response}
 
 pub fn handle_request(c: Ctx) -> Response {
   use req <- web.middleware(c.req)

@@ -1,7 +1,10 @@
 import app/db
+import app/db/query
 import app/internal/colors.{
   color_blue, color_green, color_orange, color_red, color_white, color_yellow,
 }
+import app/internal/ffi
+import app/internal/jwt
 import app/model
 import gleam/dynamic/decode
 import gleam/http
@@ -12,7 +15,11 @@ import pog
 import wisp.{type Request, type Response}
 
 pub type Ctx {
-  Ctx(conn: pog.Connection, req: Request, path: List(String))
+  Ctx(conn: pog.Connection, req: Request, path: List(String), jwt_key: String)
+}
+
+pub fn init_ctx(conn: pog.Connection, req: Request, jwt_key: String) -> Ctx {
+  Ctx(conn:, req:, path: [], jwt_key:)
 }
 
 pub fn middleware(
@@ -26,6 +33,32 @@ pub fn middleware(
   handle_request(req)
 }
 
+pub fn auth_middleware(
+  c: Ctx,
+  handle_request: fn(model.User) -> Response,
+) -> Response {
+  let token_result = wisp.get_cookie(c.req, "token", wisp.PlainText)
+
+  case token_result {
+    Error(_) -> error("unauthorized", 401)
+    Ok(token) -> {
+      echo token
+
+      case jwt.validate_jwt(token, c.jwt_key) {
+        Error(_) -> error("unauthorized", 401)
+        Ok(user_id) -> {
+          let user = query.get_user_by_id(user_id, c.conn)
+
+          case user {
+            Error(_) -> error("unauthorized", 401)
+            Ok(user) -> handle_request(user)
+          }
+        }
+      }
+    }
+  }
+}
+
 pub fn not_found() -> Response {
   error("unknown endpoint", 404)
 }
@@ -37,7 +70,10 @@ pub fn error(error: String, code: Int) -> Response {
 }
 
 fn log_request(req: Request, handler: fn() -> Response) -> Response {
+  let start = ffi.milliseconds()
+
   let res = handler()
+
   let method =
     req.method
     |> http.method_to_string()
@@ -53,18 +89,31 @@ fn log_request(req: Request, handler: fn() -> Response) -> Response {
     _ -> color_orange([str_status])
   }
 
-  [status, " ", color_white([method]), " ", color_white([req.path])]
+  let ms = ffi.milliseconds() - start
+  let str_ms = int.to_string(ms) <> "ms"
+  let time = case ms {
+    _ if ms < 50 -> color_green([str_ms])
+    _ if ms < 250 -> color_yellow([str_ms])
+    _ if ms < 500 -> color_orange([str_ms])
+    _ -> color_red([str_ms])
+  }
+
+  [status, " ", color_white([method]), " ", color_white([req.path]), " ", time]
   |> string.concat()
   |> io.println()
 
   res
 }
 
-pub fn unwrap_json_result(
-  decode_result: Result(a, List(decode.DecodeError)),
+pub fn ensure_json(
+  req: Request,
+  decoder: decode.Decoder(a),
   next: fn(a) -> Response,
-) -> Response {
-  case decode_result {
+) {
+  use json <- wisp.require_json(req)
+  let decoder_result = decode.run(json, decoder)
+
+  case decoder_result {
     Ok(decoded) -> next(decoded)
     Error(_) -> error("invalid body content", 400)
   }
