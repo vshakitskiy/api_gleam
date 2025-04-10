@@ -1,6 +1,6 @@
 import app/db
 import app/db/migration as mg
-import app/internal/colors.{print_red}
+import app/internal/colors.{print_red, print_yellow}
 import app/internal/ffi
 import app/router
 import app/server
@@ -8,6 +8,7 @@ import app/web
 import argv
 import dot_env as dot
 import dot_env/env
+import gleam/io
 import wisp
 
 pub fn main() {
@@ -45,10 +46,15 @@ fn run_migration(opt: mg.MigrationOption) {
 }
 
 fn run_server(mode: String) {
+  io.println("")
+
   init(mode)
   use conn <- db.with_connection()
   let conn = case db.test_connection(conn) {
-    Ok(conn) -> conn
+    Ok(conn) -> {
+      print_yellow(["Connected to db\n"])
+      conn
+    }
     Error(Nil) -> {
       print_red(["Unable to connect db"])
       ffi.exit(1)
