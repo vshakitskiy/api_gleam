@@ -1,8 +1,10 @@
 import app/db
+import app/db/query
 import app/internal/colors.{
   color_blue, color_green, color_orange, color_red, color_white, color_yellow,
 }
 import app/internal/ffi
+import app/internal/jwt
 import app/model
 import gleam/dynamic/decode
 import gleam/http
@@ -29,6 +31,32 @@ pub fn middleware(
   use req <- wisp.handle_head(req)
 
   handle_request(req)
+}
+
+pub fn auth_middleware(
+  c: Ctx,
+  handle_request: fn(model.User) -> Response,
+) -> Response {
+  let token_result = wisp.get_cookie(c.req, "token", wisp.PlainText)
+
+  case token_result {
+    Error(_) -> error("unauthorized", 401)
+    Ok(token) -> {
+      echo token
+
+      case jwt.validate_jwt(token, c.jwt_key) {
+        Error(_) -> error("unauthorized", 401)
+        Ok(user_id) -> {
+          let user = query.get_user_by_id(user_id, c.conn)
+
+          case user {
+            Error(_) -> error("unauthorized", 401)
+            Ok(user) -> handle_request(user)
+          }
+        }
+      }
+    }
+  }
 }
 
 pub fn not_found() -> Response {

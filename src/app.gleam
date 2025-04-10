@@ -2,18 +2,12 @@ import app/db
 import app/db/migration as mg
 import app/internal/colors.{print_red}
 import app/internal/ffi
-import app/internal/jwt
-import app/internal/password
 import app/router
 import app/server
 import app/web
-import argus
 import argv
 import dot_env as dot
 import dot_env/env
-import gleam/bit_array
-import gleam/json
-import gwt
 import wisp
 
 pub fn main() {
@@ -52,7 +46,14 @@ fn run_migration(opt: mg.MigrationOption) {
 
 fn run_server(mode: String) {
   init(mode)
-  use conn <- db.with_connection
+  use conn <- db.with_connection()
+  let conn = case db.test_connection(conn) {
+    Ok(conn) -> conn
+    Error(Nil) -> {
+      print_red(["Unable to connect db"])
+      ffi.exit(1)
+    }
+  }
 
   let secret =
     wisp.random_string(64)

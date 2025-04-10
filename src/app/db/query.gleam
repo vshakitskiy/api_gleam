@@ -8,19 +8,23 @@ import gleam/list
 import gleam/result
 import pog.{type Connection}
 
+pub fn get_user_cake() {
+  s.new()
+  |> s.selects([
+    s.col("id"),
+    s.col("username"),
+    s.col("email"),
+    s.col("password_hash"),
+  ])
+  |> s.from_table("users")
+}
+
 pub fn get_user_by_email(
   email: String,
   conn: Connection,
 ) -> Result(model.User, db.PGError) {
   let pg_result =
-    s.new()
-    |> s.selects([
-      s.col("id"),
-      s.col("username"),
-      s.col("email"),
-      s.col("password_hash"),
-    ])
-    |> s.from_table("users")
+    get_user_cake()
     |> s.where(w.col("email") |> w.eq(w.string(email)))
     |> s.to_query()
     |> postgres.run_read_query(model.db_user_decoder(), conn)
@@ -33,6 +37,23 @@ pub fn get_user_by_email(
     |> result.replace_error(db.Public("user not found", 404))
   use pg_user <- result.try(first)
 
+  Ok(pg_user)
+}
+
+pub fn get_user_by_id(id: Int, conn: Connection) {
+  let pg_result =
+    get_user_cake()
+    |> s.where(w.col("id") |> w.eq(w.int(id)))
+    |> s.to_query()
+    |> postgres.run_read_query(model.db_user_decoder(), conn)
+
+  use unwraped_pg <- unwrap_query_result(pg_result)
+  use pg_data <- result.try(unwraped_pg)
+
+  let first =
+    list.first(pg_data)
+    |> result.replace_error(db.Public("user not found", 404))
+  use pg_user <- result.try(first)
   Ok(pg_user)
 }
 

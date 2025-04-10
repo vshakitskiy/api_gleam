@@ -45,7 +45,6 @@ packages = [
 [requirements]
 argus = { version = ">= 1.0.2 and < 2.0.0" }
 argv = { version = ">= 1.0.2 and < 2.0.0" }
-birl = { version = ">= 1.8.0 and < 2.0.0" }
 cake = { version = ">= 2.1.1 and < 3.0.0" }
 cake_pog = { version = ">= 1.1.1 and < 2.0.0" }
 colours = { version = ">= 0.3.0 and < 1.0.0" }

@@ -3,15 +3,11 @@ import app/internal/jwt
 import app/internal/password
 import app/model
 import app/web.{type Ctx, Ctx}
-import birl
-import birl/duration
-import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/http
 import gleam/regexp
-import gleam/result
 import gleam/string
-import wisp.{type Request, type Response}
+import wisp.{type Response}
 
 const email_regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
 
@@ -42,13 +38,15 @@ fn login_decoder() -> decode.Decoder(Login) {
 
 pub fn handle_auth(c: Ctx) -> Response {
   case c.req.method, c.path {
-    http.Post, ["register"] -> register_user(c)
-    http.Post, ["login"] -> login_user(c)
+    http.Post, ["register"] -> register(c)
+    http.Post, ["login"] -> login(c)
+    http.Post, ["logout"] -> logout(c)
+    http.Get, ["status"] -> status(c)
     _, _ -> web.not_found()
   }
 }
 
-fn register_user(c: Ctx) -> Response {
+fn register(c: Ctx) -> Response {
   use Register(username, email, password) <- web.ensure_json(
     c.req,
     register_decoder(),
@@ -82,7 +80,7 @@ fn register_user(c: Ctx) -> Response {
   |> wisp.json_response(201)
 }
 
-fn login_user(c: Ctx) -> Response {
+fn login(c: Ctx) -> Response {
   use Login(email, password) <- web.ensure_json(c.req, login_decoder())
 
   let query_result = query.get_user_by_email(email, c.conn)
@@ -90,13 +88,25 @@ fn login_user(c: Ctx) -> Response {
 
   case password.verify_password(user.password_hash, password) {
     True -> {
-      let token =
-        jwt.sign_jwt(user.id, c.jwt_key, 60 * 60 * 24)
-        |> echo
+      let token = jwt.sign_jwt(user.id, c.jwt_key, 60 * 60 * 24)
 
       wisp.ok()
       |> wisp.set_cookie(c.req, "token", token, wisp.PlainText, 60 * 60 * 24)
     }
     False -> web.error("invalid credentials", 401)
   }
+}
+
+fn logout(c: Ctx) -> Response {
+  wisp.ok()
+  |> wisp.set_cookie(c.req, "token", "", wisp.PlainText, 0)
+}
+
+fn status(c: Ctx) -> Response {
+  use user <- web.auth_middleware(c)
+
+  model.user_json(user)
+  |> model.Data("authorized")
+  |> model.to_json_response()
+  |> wisp.json_response(200)
 }
