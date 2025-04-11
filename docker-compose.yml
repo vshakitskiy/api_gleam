@@ -11,6 +11,7 @@ services:
       - "${PORT}:${PORT}"
     depends_on:
       - db
+      - redis
 
   db:
     container_name: api_db
@@ -27,5 +28,20 @@ services:
     ports:
       - "${DB_PORT}:${DB_PORT}"
 
+  redis:
+    image: redis:latest
+    container_name: api_redis
+    command: --port ${REDIS_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 2s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis:/data
+
 volumes:
   db:
+  redis:

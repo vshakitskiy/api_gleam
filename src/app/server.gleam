@@ -12,7 +12,7 @@ pub fn start_server(
   port: Int,
   secret: String,
 ) -> Nil {
-  print_blue(["Starting server..."])
+  print_blue(["\nStarting server..."])
 
   let start_result =
     wisp_mist.handler(handler, secret)

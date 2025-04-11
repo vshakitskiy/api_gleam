@@ -12,14 +12,26 @@ import gleam/int
 import gleam/io
 import gleam/string
 import pog
+import radish
 import wisp.{type Request, type Response}
 
 pub type Ctx {
-  Ctx(conn: pog.Connection, req: Request, path: List(String), jwt_key: String)
+  Ctx(
+    conn: pog.Connection,
+    req: Request,
+    path: List(String),
+    jwt_key: String,
+    redis: radish.Client,
+  )
 }
 
-pub fn init_ctx(conn: pog.Connection, req: Request, jwt_key: String) -> Ctx {
-  Ctx(conn:, req:, path: [], jwt_key:)
+pub fn init_ctx(
+  conn: pog.Connection,
+  req: Request,
+  jwt_key: String,
+  redis: radish.Client,
+) -> Ctx {
+  Ctx(conn:, req:, path: [], jwt_key:, redis:)
 }
 
 pub fn middleware(

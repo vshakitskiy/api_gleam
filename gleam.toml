@@ -31,6 +31,7 @@ wisp = ">= 1.6.0 and < 2.0.0"
 cake = ">= 2.1.1 and < 3.0.0"
 cake_pog = ">= 1.1.1 and < 2.0.0"
 pog = ">= 3.2.0 and < 4.0.0"
+radish = { path = "packages/radish" }
 # hashing
 argus = ">= 1.0.2 and < 2.0.0"
 # jwt

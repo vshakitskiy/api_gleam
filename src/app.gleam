@@ -1,6 +1,6 @@
 import app/db
 import app/db/migration as mg
-import app/internal/colors.{print_red, print_yellow}
+import app/internal/colors.{print_red}
 import app/internal/ffi
 import app/router
 import app/server
@@ -32,17 +32,16 @@ fn init(mode: String) {
   dot.new()
   |> dot.set_path(".env")
   |> dot.set_debug(set_debug)
-  |> dot.load
+  |> dot.load()
 }
 
 fn run_migration(opt: mg.MigrationOption) {
   init("")
-  use conn <- db.with_connection
 
-  case db.test_connection(conn) {
-    Ok(conn) -> mg.run(opt, conn)
-    Error(Nil) -> print_red(["Unable to connect db"])
-  }
+  use conn <- db.with_connection()
+  use <- db.test_connection(conn)
+
+  mg.run(opt, conn)
 }
 
 fn run_server(mode: String) {
@@ -50,16 +49,9 @@ fn run_server(mode: String) {
 
   init(mode)
   use conn <- db.with_connection()
-  let conn = case db.test_connection(conn) {
-    Ok(conn) -> {
-      print_yellow(["Connected to db\n"])
-      conn
-    }
-    Error(Nil) -> {
-      print_red(["Unable to connect db"])
-      ffi.exit(1)
-    }
-  }
+  use <- db.test_connection(conn)
+
+  use redis <- db.with_redis()
 
   let secret =
     wisp.random_string(64)
@@ -75,7 +67,7 @@ fn run_server(mode: String) {
   }
 
   server.start_server(
-    fn(req) { router.handle_request(web.init_ctx(conn, req, jwt_key)) },
+    fn(req) { router.handle_request(web.init_ctx(conn, req, jwt_key, redis)) },
     port,
     secret,
   )
