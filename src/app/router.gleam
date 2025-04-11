@@ -17,7 +17,7 @@ fn handle_v1(c: Ctx) -> Response {
     _, ["auth", ..path] -> handle_auth(Ctx(..c, path:))
     http.Get, ["ping"] ->
       model.Message("pong!")
-      |> model.to_json_response()
+      |> model.res_body_to_string_tree()
       |> wisp.json_response(200)
     _, _ -> web.not_found()
   }

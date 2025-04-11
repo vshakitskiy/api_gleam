@@ -6,7 +6,7 @@ pub type User {
   User(id: Int, username: String, email: String, password_hash: String)
 }
 
-pub fn db_user_decoder() -> decode.Decoder(User) {
+pub fn from_db_user_decoder() -> decode.Decoder(User) {
   use id <- decode.field(0, decode.int)
   use username <- decode.field(1, decode.string)
   use email <- decode.field(2, decode.string)
@@ -14,12 +14,20 @@ pub fn db_user_decoder() -> decode.Decoder(User) {
   decode.success(User(id:, username:, email:, password_hash:))
 }
 
-pub fn db_user_id_decoder() -> decode.Decoder(Int) {
+pub fn from_json_user_decoder() -> decode.Decoder(User) {
+  use id <- decode.field("id", decode.int)
+  use username <- decode.field("username", decode.string)
+  use email <- decode.field("email", decode.string)
+  use password_hash <- decode.field("password_hash", decode.string)
+  decode.success(User(id:, username:, email:, password_hash:))
+}
+
+pub fn user_id_decoder() -> decode.Decoder(Int) {
   use id <- decode.field(0, decode.int)
   decode.success(id)
 }
 
-pub fn user_json(user: User) -> j.Json {
+pub fn user_to_json(user: User) -> j.Json {
   j.object([
     #("id", j.int(user.id)),
     #("username", j.string(user.username)),
@@ -34,7 +42,7 @@ pub type JSON {
   Data(data: j.Json, message: String)
 }
 
-pub fn to_json_response(json: JSON) -> StringTree {
+pub fn res_body_to_string_tree(json: JSON) -> StringTree {
   case json {
     Err(err) -> j.object([#("error", j.string(err))]) |> j.to_string_tree()
     Message(message) ->

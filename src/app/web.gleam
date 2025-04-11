@@ -77,7 +77,7 @@ pub fn not_found() -> Response {
 
 pub fn error(error: String, code: Int) -> Response {
   model.Err(error)
-  |> model.to_json_response()
+  |> model.res_body_to_string_tree()
   |> wisp.json_response(code)
 }
 
@@ -125,6 +125,10 @@ pub fn ensure_json(
   use json <- wisp.require_json(req)
   let decoder_result = decode.run(json, decoder)
 
+  unwrap_decoding(decoder_result, next)
+}
+
+pub fn unwrap_decoding(decoder_result: Result(a, b), next: fn(a) -> Response) {
   case decoder_result {
     Ok(decoded) -> next(decoded)
     Error(_) -> error("invalid body content", 400)

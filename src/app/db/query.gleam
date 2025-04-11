@@ -27,7 +27,7 @@ pub fn get_user_by_email(
     get_user_cake()
     |> s.where(w.col("email") |> w.eq(w.string(email)))
     |> s.to_query()
-    |> postgres.run_read_query(model.db_user_decoder(), conn)
+    |> postgres.run_read_query(model.from_db_user_decoder(), conn)
 
   use unwraped_pg <- unwrap_query_result(pg_result)
   use pg_data <- result.try(unwraped_pg)
@@ -45,7 +45,7 @@ pub fn get_user_by_id(id: Int, conn: Connection) {
     get_user_cake()
     |> s.where(w.col("id") |> w.eq(w.int(id)))
     |> s.to_query()
-    |> postgres.run_read_query(model.db_user_decoder(), conn)
+    |> postgres.run_read_query(model.from_db_user_decoder(), conn)
 
   use unwraped_pg <- unwrap_query_result(pg_result)
   use pg_data <- result.try(unwraped_pg)
@@ -73,7 +73,7 @@ pub fn insert_user(
     |> i.from_values(table_name: "users", columns: cols)
     |> i.returning(["id"])
     |> i.to_query()
-    |> postgres.run_write_query(model.db_user_id_decoder(), conn)
+    |> postgres.run_write_query(model.user_id_decoder(), conn)
 
   use unwraped_pg <- unwrap_query_result(pg_result)
   use pg_data <- result.try(unwraped_pg)

@@ -5,8 +5,11 @@ import app/model
 import app/web.{type Ctx, Ctx}
 import gleam/dynamic/decode
 import gleam/http
+import gleam/int
+import gleam/json
 import gleam/regexp
 import gleam/string
+import radish
 import wisp.{type Response}
 
 const email_regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
@@ -74,17 +77,28 @@ fn register(c: Ctx) -> Response {
     query.insert_user(model.User(0, username:, email:, password_hash:), c.conn)
   use user <- web.unwrap_query(query_result)
 
-  model.user_json(user)
+  let json_user = model.user_to_json(user)
+  let json_stringified = json_user |> json.to_string()
+
+  let _ =
+    radish.set(
+      c.redis,
+      "user:" <> user.id |> int.to_string(),
+      json_stringified,
+      100,
+    )
+  let _ = radish.set(c.redis, "user:" <> user.email, json_stringified, 100)
+
+  json_user
   |> model.Data("user created")
-  |> model.to_json_response()
+  |> model.res_body_to_string_tree()
   |> wisp.json_response(201)
 }
 
 fn login(c: Ctx) -> Response {
   use Login(email, password) <- web.ensure_json(c.req, login_decoder())
 
-  let query_result = query.get_user_by_email(email, c.conn)
-  use user <- web.unwrap_query(query_result)
+  use user <- fetch_user(email, c)
 
   case password.verify_password(user.password_hash, password) {
     True -> {
@@ -97,6 +111,21 @@ fn login(c: Ctx) -> Response {
   }
 }
 
+fn fetch_user(email: String, c: Ctx, next: fn(model.User) -> Response) {
+  case radish.get(c.redis, "user:" <> email, 30) {
+    Ok(user_json) -> {
+      let user = json.parse(user_json, model.from_json_user_decoder())
+      use user <- web.unwrap_decoding(user)
+      next(user)
+    }
+    Error(_) -> {
+      let query_result = query.get_user_by_email(email, c.conn)
+      use user <- web.unwrap_query(query_result)
+      next(user)
+    }
+  }
+}
+
 fn logout(c: Ctx) -> Response {
   wisp.ok()
   |> wisp.set_cookie(c.req, "token", "", wisp.PlainText, 0)
@@ -105,8 +134,8 @@ fn logout(c: Ctx) -> Response {
 fn status(c: Ctx) -> Response {
   use user <- web.auth_middleware(c)
 
-  model.user_json(user)
+  model.user_to_json(user)
   |> model.Data("authorized")
-  |> model.to_json_response()
+  |> model.res_body_to_string_tree()
   |> wisp.json_response(200)
 }
