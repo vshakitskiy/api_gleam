@@ -22,6 +22,7 @@ pub type Ctx {
     path: List(String),
     jwt_key: String,
     redis: radish.Client,
+    timeout_ms: Int,
   )
 }
 
@@ -30,8 +31,9 @@ pub fn init_ctx(
   req: Request,
   jwt_key: String,
   redis: radish.Client,
+  timeout_ms: Int,
 ) -> Ctx {
-  Ctx(conn:, req:, path: [], jwt_key:, redis:)
+  Ctx(conn:, req:, path: [], jwt_key:, redis:, timeout_ms:)
 }
 
 pub fn middleware(

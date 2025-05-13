@@ -85,9 +85,10 @@ fn register(c: Ctx) -> Response {
       c.redis,
       "user:" <> user.id |> int.to_string(),
       json_stringified,
-      100,
+      c.timeout_ms,
     )
-  let _ = radish.set(c.redis, "user:" <> user.email, json_stringified, 100)
+  let _ =
+    radish.set(c.redis, "user:" <> user.email, json_stringified, c.timeout_ms)
 
   json_user
   |> model.Data("user created")
@@ -112,7 +113,7 @@ fn login(c: Ctx) -> Response {
 }
 
 fn fetch_user(email: String, c: Ctx, next: fn(model.User) -> Response) {
-  case radish.get(c.redis, "user:" <> email, 30) {
+  case radish.get(c.redis, "user:" <> email, c.timeout_ms) {
     Ok(user_json) -> {
       let user = json.parse(user_json, model.from_json_user_decoder())
       use user <- web.unwrap_decoding(user)

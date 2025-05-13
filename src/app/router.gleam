@@ -8,7 +8,7 @@ pub fn handle_request(c: Ctx) -> Response {
   use req <- web.middleware(c.req)
   case wisp.path_segments(c.req) {
     ["api", "v1", ..path] -> handle_v1(Ctx(..c, path:, req:))
-    _ -> wisp.not_found()
+    _ -> web.not_found()
   }
 }
 

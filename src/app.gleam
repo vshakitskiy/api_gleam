@@ -67,7 +67,15 @@ fn run_server(mode: String) {
   }
 
   server.start_server(
-    fn(req) { router.handle_request(web.init_ctx(conn, req, jwt_key, redis)) },
+    fn(req) {
+      router.handle_request(web.init_ctx(
+        conn,
+        req,
+        jwt_key,
+        redis,
+        env.get_int_or("REDIS_TIMEOUT_MS", 250),
+      ))
+    },
     port,
     secret,
   )
