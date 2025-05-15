@@ -1,6 +1,6 @@
 import app/internal/colors.{print_blue, print_red}
 import app/internal/ffi.{exit}
-import cake/adapter/postgres
+import cake/adapter/postgres as pg
 import pog.{type Connection}
 
 pub type MigrationOption {
@@ -24,11 +24,9 @@ fn migrate_down(conn: Connection) -> Nil {
 }
 
 fn execute(name: String, query: fn() -> String, conn: Connection) -> Nil {
-  let result =
-    query()
-    |> postgres.execute_raw_sql(conn)
+  let res = query() |> pg.execute_raw_sql(conn)
 
-  case result {
+  case res {
     Ok(_) -> print_blue([name, ": ok"])
     Error(_) -> {
       print_red([name, ": ERR"])

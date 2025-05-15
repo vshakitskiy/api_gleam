@@ -14,7 +14,7 @@ pub fn start_server(
 ) -> Nil {
   print_blue(["\nStarting server..."])
 
-  let start_result =
+  let start_res =
     wisp_mist.handler(handler, secret)
     |> mist.new()
     |> mist.port(port)
@@ -32,7 +32,7 @@ pub fn start_server(
     })
     |> mist.start_http()
 
-  case start_result {
+  case start_res {
     Ok(_) -> process.sleep_forever()
     Error(e) -> {
       print_red(["Failed to start server\n"])

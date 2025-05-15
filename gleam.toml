@@ -37,8 +37,5 @@ argus = ">= 1.0.2 and < 2.0.0"
 # jwt
 gwt = ">= 2.0.0 and < 3.0.0"
 
-# TODO: Remove colour
-colours = ">= 0.3.0 and < 1.0.0"
-
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

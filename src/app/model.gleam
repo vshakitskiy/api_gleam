@@ -42,7 +42,7 @@ pub type JSON {
   Data(data: j.Json, message: String)
 }
 
-pub fn res_body_to_string_tree(json: JSON) -> StringTree {
+pub fn resp_body_to_string_tree(json: JSON) -> StringTree {
   case json {
     Err(err) -> j.object([#("error", j.string(err))]) |> j.to_string_tree()
     Message(message) ->
